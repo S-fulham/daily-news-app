@@ -1,0 +1,45 @@
+Top synthesized stories
+========================================
+
+1. Multiple outlets are covering Trump reinstates Iran port blockade and imposes 20% charge on cargo passing through Hormuz. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 1 | Articles: 3
+   Disagreement note: The available headlines do not show a strong factual split, but the tone and emphasis still vary by outlet.
+   Headlines:
+   - Trump reinstates Iran port blockade and imposes 20% charge on cargo passing through Hormuz - BBC [news.google.com]
+   - Judge says Trump sued IRS for 'improper purpose'; refers his lawyer to bar - CNBC [news.google.com]
+   - Oil prices rise following the latest fighting in the Middle East, as AI stocks sink - AP News [news.google.com]
+
+2. Multiple outlets are covering Another Heat Wave Brings Unbearable Temperatures to Parts of the U.S.. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 1 | Articles: 2
+   Disagreement note: The available headlines do not show a strong factual split, but the tone and emphasis still vary by outlet.
+   Headlines:
+   - Another Heat Wave Brings Unbearable Temperatures to Parts of the U.S. - The New York Times [news.google.com]
+   - Live: Forest Service closing Boundary Waters due to fires and extreme heat - Star Tribune [news.google.com]
+
+3. Multiple outlets are covering SK Hynix Stock Drops as AI Fears Resurface. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 1 | Articles: 2
+   Disagreement note: The available headlines do not show a strong factual split, but the tone and emphasis still vary by outlet.
+   Headlines:
+   - SK Hynix Stock Drops as AI Fears Resurface - Barron's [news.google.com]
+   - S&P 500 drops after Trump reimposes Strait of Hormuz blockade, SK Hynix leads chip stocks lower: Live updates - CNBC [news.google.com]
+
+4. Multiple outlets are covering Conor McGregor announces surgery, addresses UFC future after devastating UFC 329 injury. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 1 | Articles: 2
+   Disagreement note: The available headlines do not show a strong factual split, but the tone and emphasis still vary by outlet.
+   Headlines:
+   - Conor McGregor announces surgery, addresses UFC future after devastating UFC 329 injury - Yahoo Sports [news.google.com]
+   - Common knee surgery may do more harm than good: "I don't know how I would defend this procedure" - CBS News [news.google.com]
+
+5. Multiple outlets are covering Spain, France, Argentina and England beware: Demons haunt the World Cup semi-finals. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 1 | Articles: 2
+   Disagreement note: The available headlines do not show a strong factual split, but the tone and emphasis still vary by outlet.
+   Headlines:
+   - Spain, France, Argentina and England beware: Demons haunt the World Cup semi-finals - The Guardian [news.google.com]
+   - New study finds reducing sleep by just 80 minutes per night harms your health: Neurologist Dr Sudhir Kumar explains | Health - Hindustan Times [news.google.com]
+
+6. Multiple outlets are covering U.S. citizen working for humanitarian organization tests positive for Ebola in DR Congo. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 1 | Articles: 2
+   Disagreement note: The available headlines do not show a strong factual split, but the tone and emphasis still vary by outlet.
+   Headlines:
+   - U.S. citizen working for humanitarian organization tests positive for Ebola in DR Congo - NBC News [news.google.com]
+   - Cyclosporiasis cases in Michigan surpass 2,600, health officials say - ABC News - Breaking News, Latest News and Videos [news.google.com]
