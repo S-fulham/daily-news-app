@@ -1,0 +1,10 @@
+env: load .env
+env: export EXPO_PUBLIC_SUPABASE_ANON_KEY EXPO_PUBLIC_SUPABASE_URL
+Starting project at C:\Users\Sam Fulham\Daily news app\app
+Starting Metro Bundler
+
+Waiting on http://localhost:8090
+
+3 packages may need updating. Run npx expo install --check for details.
+Logs for your project will appear below.
+Web Bundled 5796ms index.ts (560 modules)

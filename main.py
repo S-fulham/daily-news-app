@@ -93,21 +93,23 @@ def fetch_google_news_articles() -> List[Dict[str, Any]]:
 
 
 def fetch_articles() -> List[Dict[str, Any]]:
+    articles: List[Dict[str, Any]] = []
+
     try:
-        gnews_articles = fetch_gnews_articles()
-        if gnews_articles:
-            return gnews_articles[:80]
+        articles.extend(fetch_gnews_articles())
     except Exception as exc:
         print(f"GNews unavailable: {exc}")
 
     try:
-        google_articles = fetch_google_news_articles()
-        if google_articles:
-            return google_articles[:80]
+        articles.extend(fetch_google_news_articles())
     except Exception as exc:
-        print(f"Google News fallback failed: {exc}")
+        print(f"Google News unavailable: {exc}")
 
-    return []
+    # GNews's free tier caps a single request at 10 articles, which is too
+    # few/diverse to cluster on its own, so we combine it with Google News
+    # RSS (many outlets, no key required) to get enough volume for outlets
+    # to actually overlap on the same story.
+    return articles
 
 
 def cluster_articles(articles: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
@@ -251,6 +253,59 @@ def build_output(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+def write_to_supabase(payload: Dict[str, Any]) -> None:
+    supabase_url = os.getenv("SUPABASE_URL")
+    service_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    if not supabase_url or not service_key:
+        print("Supabase env vars not set; skipping database write.")
+        return
+
+    headers = {
+        "apikey": service_key,
+        "Authorization": f"Bearer {service_key}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal",
+    }
+    today = datetime.now(timezone.utc).date().isoformat()
+
+    # Clear out any existing rows for today's general feed before re-inserting,
+    # so re-running the pipeline the same day doesn't duplicate stories.
+    delete_response = requests.delete(
+        f"{supabase_url}/rest/v1/stories",
+        headers=headers,
+        params={"story_date": f"eq.{today}", "category": "eq.general"},
+        timeout=25,
+    )
+    delete_response.raise_for_status()
+
+    rows = [
+        {
+            "story_date": today,
+            "category": "general",
+            "rank": index,
+            "summary": story["summary"],
+            "disagreement": story["disagreement"],
+            "outlet_count": story["outlet_count"],
+            "article_count": story["article_count"],
+            "headlines": story["headlines"],
+            "generated_at": payload["generated_at"],
+        }
+        for index, story in enumerate(payload["stories"])
+    ]
+
+    if not rows:
+        return
+
+    insert_response = requests.post(
+        f"{supabase_url}/rest/v1/stories",
+        headers=headers,
+        json=rows,
+        timeout=25,
+    )
+    insert_response.raise_for_status()
+    print(f"Wrote {len(rows)} stories to Supabase for {today}.")
+
+
 def write_outputs(payload: Dict[str, Any]) -> None:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     json_path = OUTPUT_DIR / f"{timestamp}_stories.json"
@@ -284,6 +339,7 @@ def main() -> None:
     print(f"Collected {len(articles)} articles. Building clusters...")
     payload = build_output(articles)
     write_outputs(payload)
+    write_to_supabase(payload)
 
     print("\nPreview of the top synthesized stories:\n")
     for story in payload["stories"][:5]:

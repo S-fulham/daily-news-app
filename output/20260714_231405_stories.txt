@@ -1,0 +1,42 @@
+Top synthesized stories
+========================================
+
+1. Multiple outlets are covering FTSE 100 Live: Travel stocks drag but BP climbs as oil surges to four-week high. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 2 | Articles: 3
+   Disagreement note: Coverage seems to differ mostly in emphasis and framing rather than in a clear contradiction. The outlets most represented here are Proactive Investors, news.google.com.
+   Headlines:
+   - FTSE 100 Live: Travel stocks drag but BP climbs as oil surges to four-week high [Proactive Investors]
+   - World Cup Daily live: Spain lead France; Haaland inspires baby name boom - ESPN [news.google.com]
+   - Erling Haaland goes viral (again) for his unique US souvenir - Euronews [news.google.com]
+
+2. Multiple outlets are covering Ann Widdecombe’s murder stirs familiar feelings of fear and dread among Westminster MPs. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 2 | Articles: 2
+   Disagreement note: Coverage seems to differ mostly in emphasis and framing rather than in a clear contradiction. The outlets most represented here are The Irish Times, news.google.com.
+   Headlines:
+   - Ann Widdecombe’s murder stirs familiar feelings of fear and dread among Westminster MPs [The Irish Times]
+   - Murder of UK politician Ann Widdecombe was ‘targeted attack’, police say - Al Jazeera [news.google.com]
+
+3. Multiple outlets are covering Trump reverses course on a 20% fee on Strait of Hormuz cargo after pushback. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 1 | Articles: 27
+   Disagreement note: The available headlines do not show a strong factual split, but the tone and emphasis still vary by outlet.
+   Headlines:
+   - Trump reverses course on a 20% fee on Strait of Hormuz cargo after pushback - Business Insider [news.google.com]
+   - US carries out more strikes on Iran after Trump drops threat of strait of Hormuz tolls – Middle East crisis live - The Guardian [news.google.com]
+   - Senate Democrats block defence bill over Iran war, Israel provisions - Al Jazeera [news.google.com]
+   - France showcases 500 pro-Ukraine troops at Bastille Day - Reuters [news.google.com]
+   - Burnham: New law strikes at ‘cover-up culture’ over soccer disaster - Politico [news.google.com]
+   - IBM Shares Crashed 25% In Worst Day Ever—Here’s Why - Forbes [news.google.com]
+
+4. Multiple outlets are covering Man killed in Maine ICE shooting was a 25-year-old Colombian father. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 1 | Articles: 2
+   Disagreement note: The available headlines do not show a strong factual split, but the tone and emphasis still vary by outlet.
+   Headlines:
+   - Man killed in Maine ICE shooting was a 25-year-old Colombian father - The Washington Post [news.google.com]
+   - Man killed by semi after fleeing from immigration officials in Florida - The Guardian [news.google.com]
+
+5. Multiple outlets are covering Trump says FBI is ‘wasting their time’ investigating Lindsey Graham’s death. The common thread across reports appears to be the same core event, while the details and emphasis vary by outlet.
+   Outlets: 1 | Articles: 2
+   Disagreement note: The available headlines do not show a strong factual split, but the tone and emphasis still vary by outlet.
+   Headlines:
+   - Trump says FBI is ‘wasting their time’ investigating Lindsey Graham’s death - NBC News [news.google.com]
+   - Darline Graham is sworn in to her brother's Senate seat - Politico [news.google.com]
