@@ -3,8 +3,9 @@ env: export EXPO_PUBLIC_SUPABASE_ANON_KEY EXPO_PUBLIC_SUPABASE_URL
 Starting project at C:\Users\Sam Fulham\Daily news app\app
 Starting Metro Bundler
 
+warning: Bundler cache is empty, rebuilding (this may take a minute)
 Waiting on http://localhost:8090
 
-3 packages may need updating. Run npx expo install --check for details.
+An update for expo is available: 57.0.4 → ~57.0.6
+5 other packages may need updating. Run npx expo install --check for details.
 Logs for your project will appear below.
-Web Bundled 5796ms index.ts (560 modules)
