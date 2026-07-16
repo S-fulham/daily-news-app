@@ -12,10 +12,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Category, Story } from '../lib/types';
+import { getExcerpt } from '../lib/text';
 import CategoryTabs from '../components/CategoryTabs';
 import UpgradeModal from '../components/UpgradeModal';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { AppStackParamList } from '../navigation/RootNavigator';
 
-export default function FeedScreen() {
+type Props = NativeStackScreenProps<AppStackParamList, 'Feed'>;
+
+export default function FeedScreen({ navigation }: Props) {
   const { session, signOut } = useAuth();
   const [activeCategory, setActiveCategory] = useState<Category>('general');
   const [unlockedCategories, setUnlockedCategories] = useState<Category[]>(['general']);
@@ -102,15 +107,16 @@ export default function FeedScreen() {
             </Text>
           }
           renderItem={({ item }) => (
-            <View style={styles.card}>
+            <Pressable
+              style={styles.card}
+              onPress={() => navigation.navigate('ArticleDetail', { story: item })}
+            >
               <Text style={styles.headline}>{item.headlines?.[0]?.title}</Text>
-              <Text style={styles.summary}>{item.summary}</Text>
-              <Text style={styles.disagreementLabel}>Where outlets disagree</Text>
-              <Text style={styles.disagreement}>{item.disagreement}</Text>
+              <Text style={styles.summary}>{getExcerpt(item.article)}</Text>
               <Text style={styles.meta}>
                 {item.outlet_count} outlets · {item.article_count} articles
               </Text>
-            </View>
+            </Pressable>
           )}
         />
       )}
@@ -142,8 +148,6 @@ const styles = StyleSheet.create({
   },
   headline: { fontSize: 17, fontWeight: '700', marginBottom: 8 },
   summary: { fontSize: 15, color: '#333', lineHeight: 21, marginBottom: 10 },
-  disagreementLabel: { fontSize: 12, fontWeight: '700', color: '#a15c00', marginBottom: 2 },
-  disagreement: { fontSize: 14, color: '#555', lineHeight: 20, marginBottom: 10 },
   meta: { fontSize: 12, color: '#999' },
   emptyText: { textAlign: 'center', color: '#888', marginTop: 60, paddingHorizontal: 24 },
 });

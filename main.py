@@ -144,38 +144,31 @@ def cluster_articles(articles: List[Dict[str, Any]]) -> List[List[Dict[str, Any]
     return [cluster for cluster in clusters if len(cluster) >= 2]
 
 
-def build_fallback_summary(cluster: List[Dict[str, Any]]) -> Dict[str, str]:
+def build_fallback_article(cluster: List[Dict[str, Any]]) -> str:
     top_titles = [item["title"] for item in cluster[:4]]
     title = top_titles[0]
     if len(top_titles) > 1:
         title = title.split(" - ")[0].strip()
 
-    summary = (
-        f"Multiple outlets are covering {title}. The common thread across reports appears to be the same core event, "
-        "while the details and emphasis vary by outlet."
+    sources = sorted({item["source"] for item in cluster})
+    outlet_phrase = f"{len(sources)} outlets" if len(sources) != 1 else sources[0]
+
+    return (
+        f"{title}. The story is being reported by {outlet_phrase}, with coverage converging on the same "
+        "core facts. No further details are available in this summary."
     )
 
-    sources = sorted({item["source"] for item in cluster})
-    if len(sources) >= 2:
-        disagreement = (
-            "Coverage seems to differ mostly in emphasis and framing rather than in a clear contradiction. "
-            f"The outlets most represented here are {', '.join(sources[:4])}."
-        )
-    else:
-        disagreement = "The available headlines do not show a strong factual split, but the tone and emphasis still vary by outlet."
 
-    return {"summary": summary, "disagreement": disagreement}
-
-
-def call_llm_summary(cluster: List[Dict[str, Any]]) -> Dict[str, str]:
+def call_llm_article(cluster: List[Dict[str, Any]]) -> str:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        return build_fallback_summary(cluster)
+        return build_fallback_article(cluster)
 
     prompt = (
-        "You are writing a neutral, non-sentimental news synthesis. "
-        "Given several headlines from different outlets, produce a concise summary of the shared facts and a brief note on where coverage may differ. "
-        "Do not add speculation. Keep it factual and balanced.\n\n"
+        "You are a neutral wire-service reporter. Given several headlines from different outlets about the same "
+        "story, write a single short news article reporting plainly what happened. "
+        "Rules: 3-4 sentences maximum. Plain factual reporting only - no editorializing, no opinion, no speculation, "
+        "and do not comment on how outlets differ or agree. Write it as one flowing paragraph, not a list.\n\n"
         + "\n".join([f"- {item['title']} [{item['source']}]" for item in cluster[:6]])
     )
 
@@ -189,7 +182,7 @@ def call_llm_summary(cluster: List[Dict[str, Any]]) -> Dict[str, str]:
             json={
                 "model": "gpt-4.1-mini",
                 "messages": [
-                    {"role": "system", "content": "You are a neutral news synthesis assistant."},
+                    {"role": "system", "content": "You are a neutral wire-service reporter."},
                     {"role": "user", "content": prompt},
                 ],
                 "temperature": 0.3,
@@ -199,13 +192,12 @@ def call_llm_summary(cluster: List[Dict[str, Any]]) -> Dict[str, str]:
         response.raise_for_status()
         payload = response.json()
         content = payload["choices"][0]["message"]["content"].strip()
-        lines = [line.strip() for line in content.split("\n") if line.strip()]
-        if len(lines) >= 2:
-            return {"summary": lines[0], "disagreement": lines[1]}
+        if content:
+            return " ".join(content.split())
     except Exception as exc:
-        print(f"LLM call failed; using fallback summary: {exc}")
+        print(f"LLM call failed; using fallback article: {exc}")
 
-    return build_fallback_summary(cluster)
+    return build_fallback_article(cluster)
 
 
 def rank_clusters(clusters: List[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
@@ -228,12 +220,11 @@ def build_output(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
     stories = []
     for item in ranked:
         cluster = item["cluster"]
-        synthesis = call_llm_summary(cluster)
+        article = call_llm_article(cluster)
         stories.append({
             "article_count": item["article_count"],
             "outlet_count": item["outlet_count"],
-            "summary": synthesis["summary"],
-            "disagreement": synthesis["disagreement"],
+            "article": article,
             "headlines": [
                 {
                     "title": article["title"],
@@ -283,8 +274,7 @@ def write_to_supabase(payload: Dict[str, Any]) -> None:
             "story_date": today,
             "category": "general",
             "rank": index,
-            "summary": story["summary"],
-            "disagreement": story["disagreement"],
+            "article": story["article"],
             "outlet_count": story["outlet_count"],
             "article_count": story["article_count"],
             "headlines": story["headlines"],
@@ -318,9 +308,8 @@ def write_outputs(payload: Dict[str, Any]) -> None:
         handle.write("Top synthesized stories\n")
         handle.write("=" * 40 + "\n")
         for index, story in enumerate(payload["stories"], start=1):
-            handle.write(f"\n{index}. {story['summary']}\n")
+            handle.write(f"\n{index}. {story['article']}\n")
             handle.write(f"   Outlets: {story['outlet_count']} | Articles: {story['article_count']}\n")
-            handle.write(f"   Disagreement note: {story['disagreement']}\n")
             handle.write("   Headlines:\n")
             for headline in story["headlines"]:
                 handle.write(f"   - {headline['title']} [{headline['source']}]\n")
@@ -343,8 +332,7 @@ def main() -> None:
 
     print("\nPreview of the top synthesized stories:\n")
     for story in payload["stories"][:5]:
-        print(f"- {story['summary']}")
-        print(f"  Disagreement: {story['disagreement']}\n")
+        print(f"- {story['article']}\n")
 
 
 if __name__ == "__main__":

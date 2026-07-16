@@ -6,14 +6,17 @@ import { useAuth } from '../contexts/AuthContext';
 import SignUpScreen from '../screens/SignUpScreen';
 import LoginScreen from '../screens/LoginScreen';
 import FeedScreen from '../screens/FeedScreen';
+import ArticleDetailScreen from '../screens/ArticleDetailScreen';
+import type { Story } from '../lib/types';
 
 export type AuthStackParamList = {
   SignUp: undefined;
   Login: undefined;
 };
 
-type AppStackParamList = {
+export type AppStackParamList = {
   Feed: undefined;
+  ArticleDetail: { story: Story };
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -35,6 +38,7 @@ export default function RootNavigator() {
       {session ? (
         <AppStack.Navigator screenOptions={{ headerShown: false }}>
           <AppStack.Screen name="Feed" component={FeedScreen} />
+          <AppStack.Screen name="ArticleDetail" component={ArticleDetailScreen} />
         </AppStack.Navigator>
       ) : (
         <AuthStack.Navigator screenOptions={{ headerShown: false }}>

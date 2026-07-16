@@ -19,8 +19,7 @@ export type Story = {
   story_date: string;
   category: Category;
   rank: number;
-  summary: string;
-  disagreement: string;
+  article: string;
   outlet_count: number;
   article_count: number;
   headlines: Headline[];
