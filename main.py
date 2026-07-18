@@ -20,6 +20,13 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 
 load_dotenv(ROOT / ".env")
 
+# Maps our app's category key to the corresponding GNews "category" param
+# and Google News RSS topic. None means "use the default/no-filter feed".
+CATEGORY_SOURCES = {
+    "general": {"gnews_category": None, "google_topic": None},
+    "sports": {"gnews_category": "sports", "google_topic": "SPORTS"},
+}
+
 
 def normalize_text(text: str) -> str:
     text = re.sub(r"<[^>]+>", " ", text or "")
@@ -28,7 +35,7 @@ def normalize_text(text: str) -> str:
     return text
 
 
-def fetch_gnews_articles() -> List[Dict[str, Any]]:
+def fetch_gnews_articles(gnews_category: str = None) -> List[Dict[str, Any]]:
     api_key = os.getenv("GNEWS_API_KEY")
     if not api_key:
         return []
@@ -39,6 +46,9 @@ def fetch_gnews_articles() -> List[Dict[str, Any]]:
         "lang": "en",
         "max": 80,
     }
+    if gnews_category:
+        params["category"] = gnews_category
+
     url = f"https://gnews.io/api/v4/top-headlines?{urlencode(params)}"
     response = requests.get(url, timeout=25)
     response.raise_for_status()
@@ -61,8 +71,11 @@ def fetch_gnews_articles() -> List[Dict[str, Any]]:
     return articles
 
 
-def fetch_google_news_articles() -> List[Dict[str, Any]]:
-    url = "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en"
+def fetch_google_news_articles(topic: str = None) -> List[Dict[str, Any]]:
+    if topic:
+        url = f"https://news.google.com/rss/headlines/section/topic/{topic}?hl=en-US&gl=US&ceid=US:en"
+    else:
+        url = "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en"
     response = requests.get(url, timeout=25)
     response.raise_for_status()
 
@@ -92,16 +105,17 @@ def fetch_google_news_articles() -> List[Dict[str, Any]]:
     return articles
 
 
-def fetch_articles() -> List[Dict[str, Any]]:
+def fetch_articles(category: str = "general") -> List[Dict[str, Any]]:
+    sources = CATEGORY_SOURCES.get(category, CATEGORY_SOURCES["general"])
     articles: List[Dict[str, Any]] = []
 
     try:
-        articles.extend(fetch_gnews_articles())
+        articles.extend(fetch_gnews_articles(sources["gnews_category"]))
     except Exception as exc:
         print(f"GNews unavailable: {exc}")
 
     try:
-        articles.extend(fetch_google_news_articles())
+        articles.extend(fetch_google_news_articles(sources["google_topic"]))
     except Exception as exc:
         print(f"Google News unavailable: {exc}")
 
@@ -244,7 +258,7 @@ def build_output(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
-def write_to_supabase(payload: Dict[str, Any]) -> None:
+def write_to_supabase(payload: Dict[str, Any], category: str = "general") -> None:
     supabase_url = os.getenv("SUPABASE_URL")
     service_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
     if not supabase_url or not service_key:
@@ -259,12 +273,12 @@ def write_to_supabase(payload: Dict[str, Any]) -> None:
     }
     today = datetime.now(timezone.utc).date().isoformat()
 
-    # Clear out any existing rows for today's general feed before re-inserting,
-    # so re-running the pipeline the same day doesn't duplicate stories.
+    # Clear out any existing rows for today's feed in this category before
+    # re-inserting, so re-running the pipeline the same day doesn't duplicate stories.
     delete_response = requests.delete(
         f"{supabase_url}/rest/v1/stories",
         headers=headers,
-        params={"story_date": f"eq.{today}", "category": "eq.general"},
+        params={"story_date": f"eq.{today}", "category": f"eq.{category}"},
         timeout=25,
     )
     delete_response.raise_for_status()
@@ -272,7 +286,7 @@ def write_to_supabase(payload: Dict[str, Any]) -> None:
     rows = [
         {
             "story_date": today,
-            "category": "general",
+            "category": category,
             "rank": index,
             "article": story["article"],
             "outlet_count": story["outlet_count"],
@@ -293,19 +307,19 @@ def write_to_supabase(payload: Dict[str, Any]) -> None:
         timeout=25,
     )
     insert_response.raise_for_status()
-    print(f"Wrote {len(rows)} stories to Supabase for {today}.")
+    print(f"Wrote {len(rows)} {category} stories to Supabase for {today}.")
 
 
-def write_outputs(payload: Dict[str, Any]) -> None:
+def write_outputs(payload: Dict[str, Any], category: str = "general") -> None:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    json_path = OUTPUT_DIR / f"{timestamp}_stories.json"
-    text_path = OUTPUT_DIR / f"{timestamp}_stories.txt"
+    json_path = OUTPUT_DIR / f"{timestamp}_{category}_stories.json"
+    text_path = OUTPUT_DIR / f"{timestamp}_{category}_stories.txt"
 
     with json_path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2, ensure_ascii=False)
 
     with text_path.open("w", encoding="utf-8") as handle:
-        handle.write("Top synthesized stories\n")
+        handle.write(f"Top synthesized stories - {category}\n")
         handle.write("=" * 40 + "\n")
         for index, story in enumerate(payload["stories"], start=1):
             handle.write(f"\n{index}. {story['article']}\n")
@@ -319,20 +333,22 @@ def write_outputs(payload: Dict[str, Any]) -> None:
 
 
 def main() -> None:
-    print("Fetching current headlines...")
-    articles = fetch_articles()
-    if not articles:
-        print("No articles were fetched. Check your network connection or API key configuration.")
-        return
+    for category in CATEGORY_SOURCES:
+        print(f"\n=== {category.upper()} ===")
+        print("Fetching current headlines...")
+        articles = fetch_articles(category)
+        if not articles:
+            print(f"No articles were fetched for {category}. Check your network connection or API key configuration.")
+            continue
 
-    print(f"Collected {len(articles)} articles. Building clusters...")
-    payload = build_output(articles)
-    write_outputs(payload)
-    write_to_supabase(payload)
+        print(f"Collected {len(articles)} articles. Building clusters...")
+        payload = build_output(articles)
+        write_outputs(payload, category)
+        write_to_supabase(payload, category)
 
-    print("\nPreview of the top synthesized stories:\n")
-    for story in payload["stories"][:5]:
-        print(f"- {story['article']}\n")
+        print(f"\nPreview of the top {category} stories:\n")
+        for story in payload["stories"][:5]:
+            print(f"- {story['article']}\n")
 
 
 if __name__ == "__main__":
